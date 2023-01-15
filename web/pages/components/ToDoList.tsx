@@ -1,57 +1,70 @@
 import { useRef, useState } from "react";
-import { v4 as uuidv4 } from 'uuid';
-import ToDo from "./ToDo"
+import { v4 as uuidv4 } from "uuid";
+import useAutosizeTextArea from "./useAutosizeTextArea";
+import { FiMove } from "react-icons/fi";
+import ToDo from "./ToDo";
 import CreateToDo from "./CreateTodo";
 export default function TodoList() {
+  const [title, setTitle] = useState<String>();
 
+  const textAreaRef = useRef<HTMLTextAreaElement>(null);
+  useAutosizeTextArea(textAreaRef.current, title);
 
-  const [list, setList] = useState([
-    { id: '1', task: 'task1', completed: true},
-    { id: '2', task: 'task2', completed: true},
-    { id: '3', task: 'task3', completed: true},
-    { id: uuidv4(), task: '', completed: false},
+  const handleChange = (evt: React.ChangeEvent<HTMLTextAreaElement>) => {
+    const val = evt.target?.value;
+    setTitle(val);
+  };
+
+  const [todos, setTodos] = useState([
+    { id: "1", task: "task1", completed: true },
+    { id: "2", task: "task2", completed: true },
+    { id: "3", task: "task3", completed: true },
+    { id: uuidv4(), task: "", completed: false },
   ]);
-  
-  const create = newTodo => {
+
+  const [todoList, setTodoList] = useState({ title: '', todos: '' });
+
+  const create = (newTodo) => {
     console.log(newTodo);
-    setList([...list, newTodo]);
-    console.log(list);
+    setTodos([...todos, newTodo]);
+    console.log(todos);
   };
 
   const update = (updatedTask, id) => {
-    const updatedTodos = list.map(todo => {
+    const updatedTodos = todos.map((todo) => {
       if (todo.id === id) {
         return { ...todo, task: updatedTask };
       }
       return todo;
     });
-    setList(updatedTodos);
+    setTodos(updatedTodos);
   };
 
   const complete = (id, completed) => {
-    const updatedTodos = list.map(todo => {
+    const updatedTodos = todos.map((todo) => {
       if (todo.id === id) {
         return { ...todo, completed: completed };
       }
       return todo;
     });
-    setList(updatedTodos);
+    setTodos(updatedTodos);
   };
 
   const remove = (id) => {
-    setList(list.filter(todo => todo.id !== id));
+    setTodos(todos.filter((todo) => todo.id !== id));
   };
 
-  const handleAdd = evt => {
+  const handleAdd = (evt) => {
     evt.preventDefault();
-    setList([...list, { id: uuidv4() , task: '', completed: false }])
-  };
-  
-  const handleSave = evt => {
-    console.log(list);
+    setTodos([...todos, { id: uuidv4(), task: "", completed: false }]);
   };
 
-  const todosList = list.map(todo => (
+  const handleSave = (evt) => {
+    setTodoList([title, todos])
+    console.log(todoList);
+  };
+
+  const todosList = todos.map((todo) => (
     <ToDo
       key={todo.id}
       todo={todo}
@@ -62,22 +75,39 @@ export default function TodoList() {
     />
   ));
 
-
-    return (
-      <>
-        <main className="pt-16 px-56 w-full">
-          <input type="submit" 
+  return (
+    <>
+      <main className="w-full">
+        <input
+          type="submit"
           onClick={handleSave}
-          className="cursor-pointer w-full text-xl text-white border-y border-dark flex justify-center items-center px-3"
+          className="absolute bg-green-500 hover:bg-green-400 px-4 py-2 rounded-full top-3 right-20 cursor-pointer text-xl text-white flex"
           value="Save"
+        />
+        <div className="pt-16 px-56 w-full">
+          <textarea
+            onChange={handleChange}
+            id={title}
+            ref={textAreaRef}
+            rows={1}
+            value={title}
+            className="bg-primary text-2xl ml-10 mb-2 w-full border-none flex align-middle focus:outline-none focus:ring-0 resize-none"
+            placeholder="To-Do List Title"
           />
           <ul>{todosList}</ul>
-          <input 
-          onClick={handleAdd}
-          type="submit" 
-          className="cursor-pointer w-full text-xl text-white border-y border-dark flex justify-center items-center px-3" 
-          value="Add"></input>
-        </main>
-      </>
-    )
-  }
+          <div
+            onClick={handleAdd}
+            className="cursor-pointer items-center text-gray hover:text-white ml-14 px-1 mt-2 flex"
+          >
+            <i className="fa-solid fa-plus"></i>
+            <input
+              type="submit"
+              className="cursor-pointer ml-2 px-1 items-center text-center"
+              value="Add row"
+            ></input>
+          </div>
+        </div>
+      </main>
+    </>
+  );
+}

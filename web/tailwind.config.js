@@ -3,8 +3,12 @@ const defaultTheme = require('tailwindcss/defaultTheme')
 module.exports = {
   content: [
     "./pages/**/*.{js,ts,jsx,tsx}",
+    "./public/**/*.html",
     "./components/**/*.{js,ts,jsx,tsx}",
+    './src/**/*.{html,js}',
     "./node_modules/flowbite/**/*.js",
+    "./node_modules/flowbite-react/**/*.js",
+    //'./node_modules/tw-elements/dist/js/**/*.js',
   ],
   theme: {
     borderWidth: {
@@ -46,10 +50,11 @@ module.exports = {
     },
     extend: {
       colors: {
-        pagebg: '#181b34',
-        
+        primary: '#181b34',
+        secondary: '#30324e',
+        tertiary: '#4b4e69',
         blue: '#1DA1F2',
-        green: '#00ba7c',
+        //green: '#00ba7c',
         whitest: '#FFFFFF',
         darkblue: '#2795D9',
         lightblue: '#EFF9FF',
@@ -70,6 +75,8 @@ module.exports = {
     }),
   },
   plugins: [
-    require('flowbite/plugin')
+    require('flowbite/plugin'),
+    //require('tw-elements/dist/plugin')
+    require("@tailwindcss/forms")
   ],
 }
