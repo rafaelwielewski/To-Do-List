@@ -4,7 +4,11 @@ import useAutosizeTextArea from "./useAutosizeTextArea";
 import { FiMove } from "react-icons/fi";
 import ToDo from "./ToDo";
 import CreateToDo from "./CreateTodo";
+import axios from "axios";
+
 export default function TodoList() {
+
+  const [errorTodo, setErrorTodo] = useState(null);
   const [title, setTitle] = useState<String>();
 
   const textAreaRef = useRef<HTMLTextAreaElement>(null);
@@ -22,7 +26,7 @@ export default function TodoList() {
     { id: uuidv4(), task: "", completed: false },
   ]);
 
-  const [todoList, setTodoList] = useState({ title: '', todos: '' });
+  const [todoList, setTodoList] = useState({ title: "", todos: "" });
 
   const create = (newTodo) => {
     console.log(newTodo);
@@ -59,9 +63,23 @@ export default function TodoList() {
     setTodos([...todos, { id: uuidv4(), task: "", completed: false }]);
   };
 
-  const handleSave = (evt) => {
-    setTodoList([title, todos])
+  const handleSave = async (e) => {
+
+    e.preventDefault();
+    setTodoList([title, todos]);
+
     console.log(todoList);
+    try {
+      const response = await axios.post(
+        "http://localhost:3000/todo",
+        {
+          data: [title, todos],
+        }
+      );
+      console.log(response);
+    } catch (error) {
+      setErrorTodo(error);
+    }
   };
 
   const todosList = todos.map((todo) => (
