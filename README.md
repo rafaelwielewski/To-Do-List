@@ -5,7 +5,7 @@ To-Do List developed using Reactjs + Nextjs + Nodejs + Nestjs + typescript
 # 💻 Techs
 
 - Clean Architecture
-- Main Typesccript 
+- Main Typescript 
 - Reactjs
 - Nextjs
 - Nodejs
