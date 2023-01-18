@@ -1,40 +1,74 @@
-import { useRef, useState } from "react";
+import { useRef, useState, useEffect } from "react";
 import { v4 as uuidv4 } from "uuid";
 import useAutosizeTextArea from "./useAutosizeTextArea";
 import { FiMove } from "react-icons/fi";
 import ToDo from "./ToDo";
 import CreateToDo from "./CreateTodo";
-import axios from "axios";
+import { Todo } from "../../types/Todo";
+import { List } from "../../types/List";
+import { listenerCount, title } from "process";
+import http from "../../services/http";
 
 export default function TodoList() {
-
   const [errorTodo, setErrorTodo] = useState(null);
-  const [title, setTitle] = useState<String>();
+
+  const [todos, setTodos] = useState<Todo[]>([]);
+
+  const [todoList, setTodoList] = useState<List>({
+    listId: 0, // colocar NaM
+    userId: 0, // colocar NaM
+    title: '',
+  });
+
+  useEffect(() => {
+    getTodoList().then();
+  }, []);
 
   const textAreaRef = useRef<HTMLTextAreaElement>(null);
-  useAutosizeTextArea(textAreaRef.current, title);
+  useAutosizeTextArea(textAreaRef.current, todoList.title);
 
   const handleChange = (evt: React.ChangeEvent<HTMLTextAreaElement>) => {
-    const val = evt.target?.value;
-    setTitle(val);
+
+    setTodoList({ ...todoList, title: evt.target?.value })
+
   };
 
-  const [todos, setTodos] = useState([
-    { id: "1", task: "task1", completed: true },
-    { id: "2", task: "task2", completed: true },
-    { id: "3", task: "task3", completed: true },
-    { id: uuidv4(), task: "", completed: false },
-  ]);
+  
 
-  const [todoList, setTodoList] = useState({ title: "", todos: "" });
+  const getTodoList = async () => {
 
-  const create = (newTodo) => {
-    console.log(newTodo);
-    setTodos([...todos, newTodo]);
-    console.log(todos);
+    try {
+
+      const response = await http.get(`/todo-list/${todoList.listId}`);
+
+      setTodoList(response.data);
+
+    } catch (e) {
+      console.log(e);
+    }
+
+    try {
+
+      const response = await http.get(`/todo/${todoList.listId}`);
+
+      setTodos(response.data);
+
+    } catch (e) {
+      console.log(e);
+    }
+    
   };
 
-  const update = (updatedTask, id) => {
+  const createTodo = () => {
+
+    const order = todos.length + 1;
+    setTodos([
+      ...todos,
+      { id: uuidv4(), listId: 1, order: order, task: "", completed: false },
+    ]);
+  };
+
+  const updateTodo = (updatedTask: string, id: string) => {
     const updatedTodos = todos.map((todo) => {
       if (todo.id === id) {
         return { ...todo, task: updatedTask };
@@ -44,7 +78,7 @@ export default function TodoList() {
     setTodos(updatedTodos);
   };
 
-  const complete = (id, completed) => {
+  const completeTodo = (id: string, completed: boolean) => {
     const updatedTodos = todos.map((todo) => {
       if (todo.id === id) {
         return { ...todo, completed: completed };
@@ -54,42 +88,57 @@ export default function TodoList() {
     setTodos(updatedTodos);
   };
 
-  const remove = (id) => {
+  const removeTodo = async (id: string) => {
+    console.log(id);
     setTodos(todos.filter((todo) => todo.id !== id));
-  };
 
-  const handleAdd = (evt) => {
-    evt.preventDefault();
-    setTodos([...todos, { id: uuidv4(), task: "", completed: false }]);
-  };
-
-  const handleSave = async (e) => {
-
-    e.preventDefault();
-    setTodoList([title, todos]);
-
-    console.log(todoList);
     try {
-      const response = await axios.post(
-        "http://localhost:3000/todo",
-        {
-          data: [title, todos],
-        }
-      );
-      console.log(response);
-    } catch (error) {
-      setErrorTodo(error);
+      const response = await http.delete(`/todo/${id}`);
+
+    } catch (e) {
+      console.log(e);
     }
+  };
+
+
+  const saveList = async () => {
+
+    console.log(todos)
+    todos.forEach(async (todo) => {
+      try {
+        const response = await http.post("/todo", {
+          id: todo.id,
+          listid: todoList.listId,
+          task: todo.task,
+          order: todo.order,
+          completed: todo.completed,
+        });
+
+      } catch (e) {
+        console.log(e);
+      }
+    });
+    console.log(todoList.listId)
+    try {
+      const response = await http.post("/todo-list", {
+        listId: todoList.listId,
+        userId: todoList.userId,
+        title: todoList.title
+      });
+
+    } catch (e) {
+      console.log(e);
+    }
+
   };
 
   const todosList = todos.map((todo) => (
     <ToDo
       key={todo.id}
       todo={todo}
-      createTodo={create}
-      updateTodo={update}
-      removeTodo={remove}
-      completeTodo={complete}
+      updateTodo={updateTodo}
+      removeTodo={removeTodo}
+      completeTodo={completeTodo}
     />
   ));
 
@@ -98,29 +147,29 @@ export default function TodoList() {
       <main className="w-full">
         <input
           type="submit"
-          onClick={handleSave}
-          className="absolute bg-green-500 hover:bg-green-400 px-4 py-2 rounded-full top-3 right-20 cursor-pointer text-xl text-white flex"
+          onClick={saveList}
+          className="absolute bg-green-500 hover:bg-green-400 px-4 py-2 rounded-full top-3 right-48 cursor-pointer text-xl text-white flex"
           value="Save"
         />
         <div className="pt-16 px-56 w-full">
           <textarea
             onChange={handleChange}
-            id={title}
+            id={todoList.title}
             ref={textAreaRef}
             rows={1}
-            value={title}
-            className="bg-primary text-2xl ml-10 mb-2 w-full border-none flex align-middle focus:outline-none focus:ring-0 resize-none"
+            value={todoList.title}
+            className="bg-primary text-3xl font-bold ml-10 mb-2 w-full border-none flex align-middle focus:outline-none focus:ring-0 resize-none"
             placeholder="To-Do List Title"
           />
           <ul>{todosList}</ul>
           <div
-            onClick={handleAdd}
+            onClick={createTodo}
             className="cursor-pointer items-center text-gray hover:text-white ml-14 px-1 mt-2 flex"
           >
             <i className="fa-solid fa-plus"></i>
             <input
               type="submit"
-              className="cursor-pointer ml-2 px-1 items-center text-center"
+              className="cursor-pointer text-base ml-2 px-1 items-center text-center"
               value="Add row"
             ></input>
           </div>

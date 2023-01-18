@@ -8,7 +8,6 @@ import { FiMove } from 'react-icons/fi';
 
 export default function CreateToDo({
   todo,
-  createTodo,
   updateTodo,
   removeTodo,
   completeTodo,
@@ -83,8 +82,8 @@ export default function CreateToDo({
         value={value}
         className={
           todo.completed
-            ? "bg-primary line-through ml-2 w-full border-none flex align-middle focus:outline-none focus:ring-0 resize-none"
-            : "bg-primary ml-2 w-full border-none flex align-middle focus:outline-none focus:ring-0 resize-none"
+            ? "bg-primary text-base line-through ml-2 w-full border-none flex align-middle focus:outline-none focus:ring-0 resize-none"
+            : "bg-primary text-base ml-2 w-full border-none flex align-middle focus:outline-none focus:ring-0 resize-none"
         }
         placeholder="To-do"
       />
