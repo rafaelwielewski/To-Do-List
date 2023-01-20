@@ -19,7 +19,7 @@ export class TodoListService {
     list.listId = listId;
     list.userId = userId;
     list.title = title;
-
+    console.log(list)
     return this.todoRepository.save(list);
   }
 

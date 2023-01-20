@@ -15,8 +15,8 @@ export default function TodoList() {
   const [todos, setTodos] = useState<Todo[]>([]);
 
   const [todoList, setTodoList] = useState<List>({
-    listId: 0, // colocar NaM
-    userId: 0, // colocar NaM
+    listId: 1, // colocar NaM
+    userId: 1, // colocar NaM
     title: '',
   });
 
@@ -108,7 +108,7 @@ export default function TodoList() {
       try {
         const response = await http.post("/todo", {
           id: todo.id,
-          listid: todoList.listId,
+          listId: 1,
           task: todo.task,
           order: todo.order,
           completed: todo.completed,
@@ -121,8 +121,8 @@ export default function TodoList() {
     console.log(todoList.listId)
     try {
       const response = await http.post("/todo-list", {
-        listId: todoList.listId,
-        userId: todoList.userId,
+        listId: 1,
+        userId: 1,
         title: todoList.title
       });
 
@@ -158,7 +158,7 @@ export default function TodoList() {
             ref={textAreaRef}
             rows={1}
             value={todoList.title}
-            className="bg-primary text-3xl font-bold ml-10 mb-2 w-full border-none flex align-middle focus:outline-none focus:ring-0 resize-none"
+            className="bg-primary text-3xl text-white font-bold ml-10 mb-2 w-full border-none flex align-middle focus:outline-none focus:ring-0 resize-none"
             placeholder="To-Do List Title"
           />
           <ul>{todosList}</ul>

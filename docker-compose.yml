@@ -1,0 +1,56 @@
+version: '3'
+
+volumes:
+  postgres_data:
+
+services:
+  database:
+    image: postgres
+    container_name: 'nest-db'
+    restart: always
+    environment:
+      POSTGRES_DB: 'nest_todo'
+      POSTGRES_USER: 'postgres'
+      POSTGRES_PASSWORD: 'postgres'
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - 5432:5432
+  web:
+   build:
+     context: ./web
+     dockerfile: Dockerfile
+   container_name: 'nest-web'
+   expose:
+     - 8081
+   ports:
+     - 8081:8081
+   volumes:
+     - ./web/src:/app/web/src
+     - ./web/public:/app/web/public
+   depends_on:
+     - server
+   restart: always
+
+  server:
+   build:
+     context: ./server
+     dockerfile: Dockerfile
+   container_name: 'nest-server'
+   expose:
+     - 8082
+   ports:
+     - 8082:8082
+   env_file: ./server/.env
+   restart: always
+   volumes:
+     - ./server/src:/app/server/src
+  #  depends_on:
+  #    - redis
+
+  # redis:
+  #   image: redis
+  #   container_name: 'nest-redis'
+  #   ports:
+  #     - 6379:6379
+  #   restart: always

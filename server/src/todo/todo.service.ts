@@ -23,7 +23,7 @@ async create(createTodoDto: CreateTodoDto): Promise<Todo> {
     todos.task = task;
     todos.order = order;
     todos.completed = completed;
-
+    console.log(todos)
     return this.todoRepository.save(todos);
 
   }
